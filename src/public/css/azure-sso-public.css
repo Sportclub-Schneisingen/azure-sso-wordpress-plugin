@@ -2,3 +2,23 @@
  * All of the CSS for your public-facing functionality should be
  * included in this file.
  */
+
+.login div.azure-sso-wrap {
+    margin-bottom: 1em;
+}
+
+#azure-sso-login-button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5em;
+    width: 100%;
+    /* TODO: Low priority - Add configuration to styles */
+    color: white;
+    background: green;
+    border-color: green;
+}
+
+#azure-sso-login-button > .icon {
+    height: 1em;
+}

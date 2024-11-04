@@ -171,6 +171,12 @@ class Azure_SSO
 		$plugin_public = new Azure_SSO_Public($this->get_plugin_name(), $this->get_version());
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
+		$this->loader->add_action('init', $plugin_public, 'add_rewrite');
+		$this->loader->add_action('login_init', $plugin_public, 'auto_redirect_to_sso');
+		$this->loader->add_action('login_head', $plugin_public, 'add_stylesheet_to_login_page');
+		$this->loader->add_action('login_form', $plugin_public, 'show_login_form');
+
+		$this->loader->add_filter('template_include', $plugin_public, 'handle_callbacks', 10, 1);
 	}
 
 	/**
