@@ -61,9 +61,10 @@ class Azure_SSO_Admin
 	 */
 	public function add_menu()
 	{
+		// TODO: Show notice as long as the plugin is not fully configured.
 		add_options_page(
-			'Azure SSO Settings',
-			'Azure SSO',
+			__('Azure SSO Settings', $this->plugin_name),
+			__('Azure SSO', $this->plugin_name),
 			'manage_options',
 			$this->plugin_name,
 			array($this, 'options_page'),
@@ -91,33 +92,41 @@ class Azure_SSO_Admin
 			'client_id'     => [
 				'id'          => $this->plugin_name . '-option-client-id',
 				'type'        => 'string',
-				'description' => 'Application (Client) ID',
+				'description' => __('Application (Client) ID', $this->plugin_name),
 			],
 			'client_secret' => [
 				'id'          => $this->plugin_name . '-option-client-secret',
 				'type'        => 'string',
-				'description' => 'Client Secret',
+				'description' => __('Client Secret', $this->plugin_name),
 			],
 			'tenant_id'     => [
 				'id'          => $this->plugin_name . '-option-tenant-id',
 				'type'        => 'string',
-				'description' => 'Tenant ID',
-			],
-			'redirect_uri'  => [
-				'id'          => $this->plugin_name . '-option-redirect-uri',
-				'type'        => 'string',
-				'description' => 'Redirect URI',
+				'description' => __('Tenant ID', $this->plugin_name),
 			],
 			'button_text'   => [
 				'id'          => $this->plugin_name . '-option-button-text',
 				'type'        => 'string',
-				'description' => 'Login Button Text',
-				'default'     => 'Login with Azure AD',
+				'description' => __('Login Button Text', $this->plugin_name),
+				'default'     => __('Log in with Azure AD', $this->plugin_name),
+			],
+			'post_start'    => [
+				'id'          => $this->plugin_name . '-option-post-start',
+				'type'        => 'boolean',
+				'description' => __('Enable to start authentication using POST request', $this->plugin_name),
+				'default'     => false,
+			],
+			'post_callback' => [
+				'id'          => $this->plugin_name . '-option-post-callback',
+				'type'        => 'boolean',
+				'description' => __('Enable to request POST callback from identity provider', $this->plugin_name),
+				'default'     => false,
 			],
 			'auto_redirect' => [
 				'id'          => $this->plugin_name . '-option-auto-redirect',
 				'type'        => 'boolean',
-				'description' => 'Auto Redirect to SSO Login Page',
+				'description' => __('Auto Redirect to SSO Login Page', $this->plugin_name),
+				'default'     => false,
 			],
 		];
 
@@ -144,24 +153,24 @@ class Azure_SSO_Admin
 		$sections = array(
 			'general'  => [
 				'id'       => $this->plugin_name . '-section-general',
-				'title'    => 'General Options',
+				'title'    => __('General Options', $this->plugin_name),
 				'callback' => function () {
-					echo 'Configure client ID, client secret, tenant ID and redirect URI.
-					      Get them from your Azure AD app registration.';
+					echo __('Configure client ID, client secret, tenant ID and redirect URI.
+					      Get them from your Azure AD app registration.', $this->plugin_name);
 				},
 			],
 			'login'    => [
 				'id'       => $this->plugin_name . '-section-login',
-				'title'    => 'Login Page Options',
+				'title'    => __('Login Page Options', $this->plugin_name),
 				'callback' => function () {
-					echo 'Configure the login page behavior or style the login page button.';
+					echo __('Configure the login page behavior or style the login page button.', $this->plugin_name);
 				},
 			],
 			'advanced' => [
 				'id'       => $this->plugin_name . '-section-advanced',
-				'title'    => 'Azure SSO Options',
+				'title'    => __('Advanced Options', $this->plugin_name),
 				'callback' => function () {
-					echo 'Configure advanced options for SSO here.';
+					echo __('Configure advanced options for SSO here.', $this->plugin_name);
 				},
 			],
 		);
@@ -186,7 +195,7 @@ class Azure_SSO_Admin
 		$fields = [
 			'client_id'     => [
 				'id'       => $this->plugin_name . '-option-client-id',
-				'title'    => 'Client ID',
+				'title'    => __('Client ID', $this->plugin_name),
 				'callback' => array($this, 'text_field'),
 				'section'  => $this->plugin_name . '-section-general',
 				'args'     => [
@@ -196,7 +205,7 @@ class Azure_SSO_Admin
 			],
 			'client_secret' => [
 				'id'       => $this->plugin_name . '-option-client-secret',
-				'title'    => 'Client Secret',
+				'title'    => __('Client Secret', $this->plugin_name),
 				'callback' => array($this, 'text_field'),
 				'section'  => $this->plugin_name . '-section-general',
 				'args'     => [
@@ -206,7 +215,7 @@ class Azure_SSO_Admin
 			],
 			'tenant_id'     => [
 				'id'       => $this->plugin_name . '-option-tenant-id',
-				'title'    => 'Tenant ID',
+				'title'    => __('Tenant ID', $this->plugin_name),
 				'callback' => array($this, 'text_field'),
 				'section'  => $this->plugin_name . '-section-general',
 				'args'     => [
@@ -214,19 +223,9 @@ class Azure_SSO_Admin
 					'class' => 'regular-text',
 				],
 			],
-			'redirect_uri'  => [
-				'id'       => $this->plugin_name . '-option-redirect-uri',
-				'title'    => 'Redirect URI',
-				'callback' => array($this, 'text_field'),
-				'section'  => $this->plugin_name . '-section-general',
-				'args'     => [
-					'id'    => $this->plugin_name . '-option-redirect-uri',
-					'class' => 'regular-text',
-				],
-			],
 			'button_text'   => [
 				'id'       => $this->plugin_name . '-option-button-text',
-				'title'    => 'Login Button Text',
+				'title'    => __('Login Button Text', $this->plugin_name),
 				'callback' => array($this, 'text_field'),
 				'section'  => $this->plugin_name . '-section-login',
 				'args'     => [
@@ -234,9 +233,10 @@ class Azure_SSO_Admin
 					'class' => 'regular-text',
 				],
 			],
+			// TODO: Add fields for POST request options
 			'auto_redirect' => [
 				'id'       => $this->plugin_name . '-option-auto-redirect',
-				'title'    => 'Auto Redirect to SSO Login Page',
+				'title'    => __('Auto Redirect to SSO Login Page', $this->plugin_name),
 				'callback' => array($this, 'checkbox'),
 				'section'  => $this->plugin_name . '-section-advanced',
 				'args'     => [
