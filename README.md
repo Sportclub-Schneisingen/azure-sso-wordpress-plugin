@@ -6,13 +6,10 @@ This plugin allows users to sign in to WordPress using Microsoft Entra ID as ide
 It is a collection of features of other plugins.
 
 ## Getting Started
-1. Run `docker-compose up -d` to start the WordPress containers.
-1. Go to `http://localhost:8080` and install WordPress.
-1. Go to the WordPress admin panel.
-1. Go to Plugins > Installed Plugins.
-1. Activate the **Azure SSO** plugin.
-
-The default username is `admin` and the default password is `admin`.
+1. Run `docker compose up -d` to start the WordPress containers.
+1. Go to `http://localhost:8080/wp-admin/` and log in with username `admin` and password `admin`.
+2. Go to Plugins > Installed Plugins.
+3. Activate the **Azure SSO** plugin.
 
 ## Installation
 1. Download the latest release as ZIP file.

@@ -12,6 +12,7 @@ services:
       - WORDPRESS_DB_HOST=db
       - WORDPRESS_DB_USER=root
       - WORDPRESS_DB_PASSWORD=password
+      - WORDPRESS_DEBUG=1
     depends_on:
       - db
       - phpmyadmin
@@ -42,6 +43,23 @@ services:
     environment:
       PMA_HOST: db
       MYSQL_ROOT_PASSWORD: password
+
+  cli:
+    image: wordpress:cli
+    container_name: cli
+    user: "33:33"
+    depends_on:
+      - db
+      - wordpress
+    volumes:
+      - ./wordpress:/var/www/html
+      - ./wp-setup.sh:/wp-setup.sh
+    environment:
+      - WORDPRESS_DB_NAME=wordpress
+      - WORDPRESS_DB_HOST=db
+      - WORDPRESS_DB_USER=root
+      - WORDPRESS_DB_PASSWORD=password
+    command: sh -c "chmod +x /wp-setup.sh && /wp-setup.sh"
 
 volumes:
   db_data:
