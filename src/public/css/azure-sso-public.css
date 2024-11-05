@@ -4,7 +4,7 @@
  */
 
 .login div.azure-sso-wrap {
-    margin-bottom: 1em;
+    margin-block: 1em;
 }
 
 #azure-sso-login-button {
