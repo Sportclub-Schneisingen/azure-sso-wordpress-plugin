@@ -50,6 +50,15 @@ class Azure_SSO
 	protected $plugin_name;
 
 	/**
+	 * The current base file of the plugin.
+	 * 
+	 * @since    1.0.0
+	 * @access   protected
+	 * @var      string    $plugin_file    The current base file of the plugin.
+	 */
+	protected $plugin_file;
+
+	/**
 	 * The current version of the plugin.
 	 *
 	 * @since    1.0.0
@@ -73,6 +82,11 @@ class Azure_SSO
 			$this->version = AZURE_SSO_VERSION;
 		} else {
 			$this->version = '1.0.0';
+		}
+		if (defined('AZURE_SSO_PLUGIN_FILE')) {
+			$this->plugin_file = AZURE_SSO_PLUGIN_FILE;
+		} else {
+			$this->plugin_file = plugin_dir_path(__FILE__) . 'azure-sso.php';
 		}
 		$this->plugin_name = 'azure-sso';
 
@@ -154,9 +168,12 @@ class Azure_SSO
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
 		$this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
 		$this->loader->add_action('admin_menu', $plugin_admin, 'add_menu');
+		$this->loader->add_filter('admin_init', $plugin_admin, 'display_notices');
 		$this->loader->add_action('admin_init', $plugin_admin, 'register_settings');
 		$this->loader->add_action('admin_init', $plugin_admin, 'register_sections');
 		$this->loader->add_action('admin_init', $plugin_admin, 'register_fields');
+
+		$this->loader->add_filter('plugin_action_links_' . $this->plugin_file, $plugin_admin, 'link_settings');
 	}
 
 	/**
@@ -169,13 +186,14 @@ class Azure_SSO
 	private function define_public_hooks()
 	{
 		$plugin_public = new Azure_SSO_Public($this->get_plugin_name(), $this->get_version());
-		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
+		//$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
 		$this->loader->add_action('init', $plugin_public, 'add_rewrite');
 		$this->loader->add_action('login_init', $plugin_public, 'auto_redirect_to_sso');
-		$this->loader->add_action('login_head', $plugin_public, 'add_stylesheet_to_login_page');
+		$this->loader->add_action('login_enqueue_scripts', $plugin_public, 'enqueue_styles');
 		$this->loader->add_action('login_form', $plugin_public, 'show_login_form');
 
+		$this->loader->add_filter('authenticate', $plugin_public, 'authenticate', 10, 3);
 		$this->loader->add_filter('template_include', $plugin_public, 'handle_callbacks', 10, 1);
 	}
 

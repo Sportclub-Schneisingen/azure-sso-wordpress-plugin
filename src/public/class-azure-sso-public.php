@@ -65,16 +65,6 @@ class Azure_SSO_Public
 	}
 
 	/**
-	 * Register the stylesheet on the login page.
-	 * 
-	 * @since    1.0.0
-	 */
-	public function add_stylesheet_to_login_page()
-	{
-		echo '<link rel="stylesheet" type="text/css" href="' . plugin_dir_url(__FILE__) . 'css/azure-sso-public.css" />';
-	}
-
-	/**
 	 * Show the SSO login form.
 	 * 
 	 * @since    1.0.0
@@ -85,14 +75,47 @@ class Azure_SSO_Public
 		if (isset($_REQUEST['redirect_to'])) {
 			$login_url = add_query_arg('redirect_to', $_REQUEST['redirect_to'], $login_url);
 		}
-		$button_text = get_option($this->plugin_name . '-option-button-text', __('Log in with Azure AD', $this->plugin_name));
+		$login_url = esc_url($login_url);
+		$button_text = esc_html(get_option($this->plugin_name . '-option-button-text', __('Log in with Azure AD', $this->plugin_name)));
 		include plugin_dir_path(__FILE__) . 'partials/azure-sso-public-login-form.php';
+	}
+
+	// TODO
+	/**
+	 * Intercept requests to login page or login process.
+	 * 
+	 * @since    1.0.0
+	 * @param    WP_User|WP_Error $user     WP_User if the user is authenticated. WP_Error or null otherwise.
+	 * @param    string           $username Username or email address.
+	 * @param    string           $password User password
+	 * @return   WP_User|WP_Error
+	 */
+	public function authenticate($user, $username, $password)
+	{
+		write_log('===== authenticate =====');
+
+		// Do not re-authenticate if the user is already logged in
+		if (is_a($user, 'WP_User')) {
+			return $user;
+		}
+
+		// Check if the login page received the OAuth2 authorization code
+		if (isset($_GET['code'])) {
+			// TODO: Handle callback/sign in users
+			write_log('===== code received =====');
+		}
+
+		// To generate login error return WP_Error object
+
+		return $user;
 	}
 
 	/**
 	 * Receive requests on endpoint.
 	 * 
 	 * @since    1.0.0
+	 * @param    string $template
+	 * @return   string
 	 */
 	public function handle_callbacks($template)
 	{
@@ -168,8 +191,11 @@ class Azure_SSO_Public
 
 	/**
 	 * Build the login URL.
+	 * Returns false if required configuration values are not set.
+	 * Else, returns the Microsoft OAuth2 authorization request URL.
 	 * 
 	 * @since    1.0.0
+	 * @return   string|false
 	 */
 	private function build_login_url()
 	{
@@ -178,17 +204,17 @@ class Azure_SSO_Public
 		$tenant_id = get_option($this->plugin_name . '-option-tenant-id', '');
 
 		// Check if required configuration values are set
-		if ($client_id == '' || $client_secret == '' || $tenant_id == '') {
+		if (empty($client_id) || empty($client_secret) || empty($tenant_id)) {
 			$options_page = add_query_arg('page', $this->plugin_name, admin_url('options-general.php'));
 			$login_url = add_query_arg($this->plugin_name . '-no-redirect', '', wp_login_url($options_page));
 			wp_die(
-				__('Azure SSO is not configured correctly. Check configuration and try again.', $this->plugin_name),
-				__('Azure SSO Error', $this->plugin_name),
+				esc_html__('Azure SSO is not configured correctly. Check configuration and try again.', $this->plugin_name),
+				esc_html__('Azure SSO Error', $this->plugin_name),
 				[
 					'response' => 500,
 					'back_link' => true,
 					'link_url' => $login_url,
-					'link_text' => __('Configure Azure SSO', $this->plugin_name),
+					'link_text' => esc_html__('Configure Azure SSO', $this->plugin_name),
 				]
 			);
 			return false;
@@ -208,19 +234,24 @@ class Azure_SSO_Public
 		$query_params = [
 			'client_id'     => $client_id,
 			'response_type' => 'code',
-			'redirect_uri'  => $this->build_endpoint_url('callback'),
+			'redirect_uri'  => wp_login_url(), //TODO: $this->build_endpoint_url('callback'),
 			'response_mode' => 'query', // TODO: allow for post reponses
 			'scope'         => 'openid profile email', // TODO MS Graph
 			'state'         => json_encode($state_data),
+			// TODO: Add support for PKCE
 		];
 		
 		return $base_url . '?' . http_build_query($query_params);
 	}
 
 	/**
-	 * Build the endpoint URL. Enforce HTTPS if required/possible.
+	 * Build the plugin endpoint URL.
+	 * Enforce HTTPS if possible.
 	 * 
 	 * @since    1.0.0
+	 * @param    string $action
+	 * @param    bool   $enforce_https
+	 * @return   string
 	 */
 	private function build_endpoint_url($action, $enforce_https = false)
 	{
@@ -241,18 +272,6 @@ class Azure_SSO_Public
 	 */
 	public function enqueue_styles()
 	{
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Azure_SSO_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Azure_SSO_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
-
 		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/azure-sso-public.css', array(), $this->version, 'all');
 	}
 
@@ -263,19 +282,7 @@ class Azure_SSO_Public
 	 */
 	public function enqueue_scripts()
 	{
-
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Azure_SSO_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Azure_SSO_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
-
+		// TODO: Remove if not required.
 		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/azure-sso-public.js', array('jquery'), $this->version, false);
 	}
 }

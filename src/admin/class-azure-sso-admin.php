@@ -61,7 +61,6 @@ class Azure_SSO_Admin
 	 */
 	public function add_menu()
 	{
-		// TODO: Show notice as long as the plugin is not fully configured.
 		add_options_page(
 			__('Azure SSO Settings', $this->plugin_name),
 			__('Azure SSO', $this->plugin_name),
@@ -69,6 +68,47 @@ class Azure_SSO_Admin
 			$this->plugin_name,
 			array($this, 'options_page'),
 		);
+	}
+
+	/**
+	 * Display admin notice if the plugin is not fully configured.
+	 * 
+	 * @since    1.0.0
+	 */
+	public function display_notices()
+	{
+		$client_id = get_option($this->plugin_name . '-option-client-id', '');
+		$client_secret = get_option($this->plugin_name . '-option-client-secret', '');
+		$tenant_id = get_option($this->plugin_name . '-option-tenant-id', '');
+
+		if (empty($client_id) || empty($client_secret) || empty($tenant_id)) {
+			add_action('admin_notices', function() {
+				?>
+				<div class="notice notice-info is-dismissible">
+					<p><?php _e('Azure SSO is not fully configured. SSO will not work.', $this->plugin_name); ?></p>
+					<p><a href="<?php echo esc_url($this->options_page_url()); ?>" class="button button-primary"><?php _e('Configure Azure SSO', $this->plugin_name); ?></a></p>
+				</div>
+				<?php
+			});
+		}
+	}
+
+
+	/**
+	 * Add settings link to the plugin page.
+	 * 
+	 * @since    1.0.0
+	 * @param    array    $links    The existing links array.
+	 * @return   array    The modified links array.
+	 */
+	public function link_settings($links) {
+		$settings_link = sprintf(
+			'<a href="%s">%s</a>',
+			esc_url($this->options_page_url()),
+			esc_html__('Settings', $this->plugin_name)
+		);
+		array_push($links, $settings_link);
+		return $links;
 	}
 
 	/**
@@ -258,6 +298,17 @@ class Azure_SSO_Admin
 	}
 
 	/**
+	 * Get the options page URL.
+	 * 
+	 * @since    1.0.0
+	 * @return   string
+	 */
+	private function options_page_url()
+	{
+		return add_query_arg('page', $this->plugin_name, admin_url('options-general.php'));
+	}
+
+	/**
 	 * Render a text field for an option.
 	 * 
 	 * @since    1.0.0
@@ -294,18 +345,7 @@ class Azure_SSO_Admin
 	 */
 	public function enqueue_styles()
 	{
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Azure_SSO_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Azure_SSO_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
-
+		// TODO: Remove if not required
 		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/azure-sso-admin.css', array(), $this->version, 'all');
 	}
 
@@ -316,18 +356,7 @@ class Azure_SSO_Admin
 	 */
 	public function enqueue_scripts()
 	{
-		/**
-		 * This function is provided for demonstration purposes only.
-		 *
-		 * An instance of this class should be passed to the run() function
-		 * defined in Azure_SSO_Loader as all of the hooks are defined
-		 * in that particular class.
-		 *
-		 * The Azure_SSO_Loader will then create the relationship
-		 * between the defined hooks and the functions defined in this
-		 * class.
-		 */
-
+		// TODO: Remove if not required
 		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/azure-sso-admin.js', array('jquery'), $this->version, false);
 	}
 }
