@@ -42,6 +42,15 @@ class Azure_SSO_Public
 	private $version;
 
 	/**
+	 * The authenticator object.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 * @var      Azure_SSO_Authenticator    $authenticator    The authenticator object.
+	 */
+	private $authenticator;
+
+	/**
 	 * Initialize the class and set its properties.
 	 *
 	 * @since    1.0.0
@@ -52,6 +61,15 @@ class Azure_SSO_Public
 	{
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
+
+		$this->load_dependencies();
+	}
+
+	private function load_dependencies()
+	{
+		require_once AZURE_SSO_PLUGIN_DIR . 'includes/class-azure-sso-authenticator.php';
+
+		$this->authenticator = new Azure_SSO_Authenticator($this->plugin_name, $this->version);
 	}
 
 	/**
@@ -80,36 +98,6 @@ class Azure_SSO_Public
 		include plugin_dir_path(__FILE__) . 'partials/azure-sso-public-login-form.php';
 	}
 
-	// TODO
-	/**
-	 * Intercept requests to login page or login process.
-	 * 
-	 * @since    1.0.0
-	 * @param    WP_User|WP_Error $user     WP_User if the user is authenticated. WP_Error or null otherwise.
-	 * @param    string           $username Username or email address.
-	 * @param    string           $password User password
-	 * @return   WP_User|WP_Error
-	 */
-	public function authenticate($user, $username, $password)
-	{
-		write_log('===== authenticate =====');
-
-		// Do not re-authenticate if the user is already logged in
-		if (is_a($user, 'WP_User')) {
-			return $user;
-		}
-
-		// Check if the login page received the OAuth2 authorization code
-		if (isset($_GET['code'])) {
-			// TODO: Handle callback/sign in users
-			write_log('===== code received =====');
-		}
-
-		// To generate login error return WP_Error object
-
-		return $user;
-	}
-
 	/**
 	 * Receive requests on endpoint.
 	 * 
@@ -117,21 +105,18 @@ class Azure_SSO_Public
 	 * @param    string $template
 	 * @return   string
 	 */
-	public function handle_callbacks($template)
+	public function start_sso($template)
 	{
 		global $wp_query;
-
 		$query_value = $wp_query->get($this->plugin_name);
 		$success = false;
 
-		if ($query_value == 'start') {
-			$success = $this->start_login();
-		} elseif ($query_value == 'callback') {
-			$success = $this->handle_callback();
+		if (!empty($query_value)) {
+			$success = $this->authenticator->request_authorization_code();
 		} else {
 			return $template;
 		}
-
+		
 		if ($success) {
 			return $template;
 		} else {
@@ -164,84 +149,47 @@ class Azure_SSO_Public
 		$auto_redirect = $auto_redirect && !isset($_GET['code']) && !isset($_POST['log']);
 
 		if ($auto_redirect) {
-			$this->start_login();
+			//$this->start_login();
+			$this->authenticator->request_authorization_code();
 		}
 	}
 
 	/**
-	 * Start the login process.
+	 * Intercept requests to login page or login process.
 	 * 
 	 * @since    1.0.0
+	 * @param    WP_User|WP_Error $user     WP_User if the user is authenticated. WP_Error or null otherwise.
+	 * @param    string           $username Username or email address.
+	 * @param    string           $password User password
+	 * @return   WP_User|WP_Error
 	 */
-	private function start_login()
+	public function authenticate($user, $username, $password)
 	{
-		$login_url = $this->build_login_url();
-		return wp_redirect($login_url);
-	}
+		write_log('===== authenticate =====');
 
-	/**
-	 * Handle callback from identity provider.
-	 * 
-	 * @since    1.0.0
-	 */
-	private function handle_callback()
-	{
-		// TODO: Handle callback/sign in users
-	}
-
-	/**
-	 * Build the login URL.
-	 * Returns false if required configuration values are not set.
-	 * Else, returns the Microsoft OAuth2 authorization request URL.
-	 * 
-	 * @since    1.0.0
-	 * @return   string|false
-	 */
-	private function build_login_url()
-	{
-		$client_id = get_option($this->plugin_name . '-option-client-id', '');
-		$client_secret = get_option($this->plugin_name . '-option-client-secret', '');
-		$tenant_id = get_option($this->plugin_name . '-option-tenant-id', '');
-
-		// Check if required configuration values are set
-		if (empty($client_id) || empty($client_secret) || empty($tenant_id)) {
-			$options_page = add_query_arg('page', $this->plugin_name, admin_url('options-general.php'));
-			$login_url = add_query_arg($this->plugin_name . '-no-redirect', '', wp_login_url($options_page));
-			wp_die(
-				esc_html__('Azure SSO is not configured correctly. Check configuration and try again.', $this->plugin_name),
-				esc_html__('Azure SSO Error', $this->plugin_name),
-				[
-					'response' => 500,
-					'back_link' => true,
-					'link_url' => $login_url,
-					'link_text' => esc_html__('Configure Azure SSO', $this->plugin_name),
-				]
-			);
-			return false;
+		// Do not re-authenticate if the user is already logged in
+		if (is_a($user, 'WP_User')) {
+			write_log('===== already logged in =====');
+			return $user;
 		}
 
-		// Build state data
-		$state_data = array();
-		if (isset($_GET['redirect_to'])) {
-			$state_data['redirect_to'] = esc_url_raw($_GET['redirect_to']);
-			$state_data['nonce'] = wp_create_nonce($this->plugin_name . '_' . $state_data['redirect_to']);
-		} else {
-			$state_data['nonce'] = wp_create_nonce($this->plugin_name);
+		// Check if the login form was submitted
+		if (isset($_POST['wp-submit'])) {
+			// Hand back to WordPress to handle the login
+			write_log('===== form submitted =====');
+			return $user;
 		}
 
-		// Build url
-		$base_url = 'https://login.microsoftonline.com/' . urlencode($tenant_id) . '/oauth2/v2.0/authorize';
-		$query_params = [
-			'client_id'     => $client_id,
-			'response_type' => 'code',
-			'redirect_uri'  => wp_login_url(), //TODO: $this->build_endpoint_url('callback'),
-			'response_mode' => 'query', // TODO: allow for post reponses
-			'scope'         => 'openid profile email', // TODO MS Graph
-			'state'         => json_encode($state_data),
-			// TODO: Add support for PKCE
-		];
-		
-		return $base_url . '?' . http_build_query($query_params);
+		// Check if the login page received the OAuth2 authorization code
+		if (isset($_GET['code'])) {
+			// TODO: Handle authorization code response
+			write_log('===== code received =====');
+		}
+
+		// TODO: Check for ID token response
+
+		// To generate login error return WP_Error object
+		return $user;
 	}
 
 	/**

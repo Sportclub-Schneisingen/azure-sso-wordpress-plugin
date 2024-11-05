@@ -56,12 +56,17 @@ define('AZURE_SSO_VERSION', '1.0.0');
 define('AZURE_SSO_PLUGIN_FILE', plugin_basename(__FILE__));
 
 /**
+ * The directory path of the plugin.
+ */
+define('AZURE_SSO_PLUGIN_DIR', plugin_dir_path(__FILE__));
+
+/**
  * The code that runs during plugin activation.
  * This action is documented in includes/class-azure-sso-activator.php
  */
 function activate_azure_sso()
 {
-	require_once plugin_dir_path(__FILE__) . 'includes/class-azure-sso-activator.php';
+	require_once AZURE_SSO_PLUGIN_DIR . 'includes/class-azure-sso-activator.php';
 	Azure_SSO_Activator::activate();
 }
 
@@ -71,7 +76,7 @@ function activate_azure_sso()
  */
 function deactivate_azure_sso()
 {
-	require_once plugin_dir_path(__FILE__) . 'includes/class-azure-sso-deactivator.php';
+	require_once AZURE_SSO_PLUGIN_DIR . 'includes/class-azure-sso-deactivator.php';
 	Azure_SSO_Deactivator::deactivate();
 }
 
@@ -82,7 +87,7 @@ register_deactivation_hook(__FILE__, 'deactivate_azure_sso');
  * The core plugin class that is used to define internationalization,
  * admin-specific hooks, and public-facing site hooks.
  */
-require plugin_dir_path(__FILE__) . 'includes/class-azure-sso.php';
+require AZURE_SSO_PLUGIN_DIR . 'includes/class-azure-sso.php';
 
 /**
  * Begins execution of the plugin.

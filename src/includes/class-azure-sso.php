@@ -194,7 +194,7 @@ class Azure_SSO
 		$this->loader->add_action('login_form', $plugin_public, 'show_login_form');
 
 		$this->loader->add_filter('authenticate', $plugin_public, 'authenticate', 10, 3);
-		$this->loader->add_filter('template_include', $plugin_public, 'handle_callbacks', 10, 1);
+		$this->loader->add_filter('template_include', $plugin_public, 'start_sso', 10, 1);
 	}
 
 	/**
