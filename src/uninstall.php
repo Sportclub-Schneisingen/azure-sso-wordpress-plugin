@@ -29,3 +29,8 @@
 if (!defined('WP_UNINSTALL_PLUGIN')) {
 	exit;
 }
+
+include plugin_dir_path(__FILE__) . 'includes/class-azure-sso.php';
+$plugin = new Azure_SSO();
+// TODO: Delete options (must be called for each option separately)
+delete_option($plugin->get_plugin_name());
