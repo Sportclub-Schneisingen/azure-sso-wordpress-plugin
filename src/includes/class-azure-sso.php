@@ -189,11 +189,15 @@ class Azure_SSO
 		//$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
 		$this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
 		$this->loader->add_action('init', $plugin_public, 'add_rewrite');
-		$this->loader->add_action('login_init', $plugin_public, 'auto_redirect_to_sso');
+		$this->loader->add_action('init', $plugin_public, 'start_session');
 		$this->loader->add_action('login_enqueue_scripts', $plugin_public, 'enqueue_styles');
+		$this->loader->add_action('login_init', $plugin_public, 'auto_redirect_to_sso');
 		$this->loader->add_action('login_form', $plugin_public, 'show_login_form');
+		$this->loader->add_action('wp_logout', $plugin_public, 'end_session');
+		$this->loader->add_action('wp_login', $plugin_public, 'end_session');
 
 		$this->loader->add_filter('authenticate', $plugin_public, 'authenticate', 10, 3);
+		$this->loader->add_filter('login_redirect', $plugin_public, 'redirect', 10, 3);
 		$this->loader->add_filter('template_include', $plugin_public, 'start_sso', 10, 1);
 	}
 

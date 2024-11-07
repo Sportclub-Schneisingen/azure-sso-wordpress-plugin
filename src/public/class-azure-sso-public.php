@@ -65,6 +65,11 @@ class Azure_SSO_Public
 		$this->load_dependencies();
 	}
 
+	/**
+	 * Load the required dependencies for this plugin.
+	 * 
+	 * @since    1.0.0
+	 */
 	private function load_dependencies()
 	{
 		require_once AZURE_SSO_PLUGIN_DIR . 'includes/class-azure-sso-authenticator.php';
@@ -126,6 +131,7 @@ class Azure_SSO_Public
 
 	/**
 	 * Automatically redirect to SSO login.
+	 * Prevent auto-redirect by adding 'azure-sso-no-redirect' query parameter.
 	 * 
 	 * @since    1.0.0
 	 */
@@ -148,8 +154,12 @@ class Azure_SSO_Public
 		// Prevent making the login form unusable
 		$auto_redirect = $auto_redirect && !isset($_GET['code']) && !isset($_POST['log']);
 
+		// Store the redirect_to parameter in the session for later use
+		if (isset($_GET['redirect_to'])) {
+			$_SESSION[$this->plugin_name . '-redirect-to'] = $_REQUEST['redirect_to'];
+		}
+
 		if ($auto_redirect) {
-			//$this->start_login();
 			$this->authenticator->request_authorization_code();
 		}
 	}
@@ -165,10 +175,9 @@ class Azure_SSO_Public
 	 */
 	public function authenticate($user, $username, $password)
 	{
-		write_log('===== authenticate =====');
-
 		// Do not re-authenticate if the user is already logged in
 		if (is_a($user, 'WP_User')) {
+			// User is already logged in
 			write_log('===== already logged in =====');
 			return $user;
 		}
@@ -182,14 +191,74 @@ class Azure_SSO_Public
 
 		// Check if the login page received the OAuth2 authorization code
 		if (isset($_GET['code'])) {
-			// TODO: Handle authorization code response
-			write_log('===== code received =====');
+			$code = $this->authenticator->handle_authorization_code_response();
+			if (is_a($code, 'WP_Error')) {
+				return $code;
+			}
+
+			$tokens = $this->authenticator->request_id_token($code);
+			if (is_a($tokens, 'WP_Error')) {
+				return $tokens;
+			}
+
+			$user = $this->authenticator->sign_in($tokens['id_token'], $tokens['access_token']);
+		} elseif (isset($_GET['error'])) {
+			$error = esc_html(urldecode($_GET['error']));
+			$error_desc = esc_html(urldecode($_GET['error_description']));
+			return new WP_Error(
+				$error,
+				sprintf(
+					'%s<hr><small>%s</small>',
+					sprintf('%s (%s)', esc_html__('An error occurred during SSO login.', $this->plugin_name), $error),
+					$error_desc,
+				)
+			);
 		}
 
-		// TODO: Check for ID token response
-
-		// To generate login error return WP_Error object
+		if (is_a($user, 'WP_User')) {
+			$_SESSION[$this->plugin_name . '-signed-in'] = true;
+		}
 		return $user;
+	}
+
+	/**
+	 * Start the session.
+	 * 
+	 * @since    1.0.0
+	 */
+	public function start_session()
+	{
+		if (!session_id()) {
+			session_start();
+		}
+	}
+
+	/**
+	 * End the session.
+	 * 
+	 * @since    1.0.0
+	 */
+	public function end_session()
+	{
+		session_destroy();
+	}
+
+	/**
+	 * Redirect the user after login.
+	 * 
+	 * @since    1.0.0
+	 * @param    string $redirect_to
+	 * @param    string $request
+	 * @param    WP_User $user
+	 * @return   string
+	 */
+	public function redirect($redirect_to, $request, $user)
+	{
+		if (is_a($user, 'WP_User') && isset($_SESSION[$this->plugin_name . '-redirect-to'])) {
+			$redirect_to = esc_url_raw($_SESSION[$this->plugin_name . '-redirect-to']);
+			write_log('===== redirect_to: ' . $redirect_to . ' =====');
+		}
+		return $redirect_to;
 	}
 
 	/**
