@@ -11,7 +11,8 @@
  */
 ?>
 
-<!-- This file should primarily consist of HTML with a little bit of PHP. -->
-<textarea name="<?php echo $args['id']; ?>">
-    <?php echo get_option($args['id']); ?>
+<textarea
+    id="<?php esc_attr_e($args['id']); ?>"
+    name="<?php esc_attr_e(sprintf('%s[%s]', $this->plugin_name, $args['id'])); ?>">
+    <?php esc_attr_e($this->options[$args['id']]); ?>
 </textarea>

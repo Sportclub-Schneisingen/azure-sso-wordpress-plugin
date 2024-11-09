@@ -42,6 +42,24 @@ class Azure_SSO_Admin
 	private $version;
 
 	/**
+	 * The options for this plugin.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 * @var      array    $options    The options for this plugin.
+	 */
+	private $options;
+
+	/**
+	 * The default options for this plugin.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 * @var      array    $defaults    The default options for this plugin.
+	 */
+	private $defaults;
+
+	/**
 	 * Initialize the class and set its properties.
 	 *
 	 * @since    1.0.0
@@ -52,6 +70,15 @@ class Azure_SSO_Admin
 	{
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
+
+		$this->defaults = [
+			'client_id'     => '',
+			'client_secret' => '',
+			'tenant_id'     => '',
+			'button_text'   => __('Sign in with Microsoft Entra ID', $this->plugin_name),
+			'use_post'      => false,
+			'auto_redirect' => false,
+		];
 	}
 
 	/**
@@ -77,9 +104,9 @@ class Azure_SSO_Admin
 	 */
 	public function display_notices()
 	{
-		$client_id = get_option($this->plugin_name . '-option-client-id', '');
-		$client_secret = get_option($this->plugin_name . '-option-client-secret', '');
-		$tenant_id = get_option($this->plugin_name . '-option-tenant-id', '');
+		$client_id = isset($this->options['client_id']) ? $this->options['client_id'] : '';
+		$client_secret = isset($this->options['client_secret']) ? $this->options['client_secret'] : '';
+		$tenant_id = isset($this->options['tenant_id']) ? $this->options['tenant_id'] : '';
 
 		if (empty($client_id) || empty($client_secret) || empty($tenant_id)) {
 			add_action('admin_notices', function() {
@@ -118,183 +145,149 @@ class Azure_SSO_Admin
 	 */
 	public function options_page()
 	{
+		$this->options = wp_parse_args(get_option($this->plugin_name, []), $this->defaults);
 		include plugin_dir_path(__FILE__) . 'partials/azure-sso-admin-display.php';
 	}
 
 	/**
-	 * Register settings options.
+	 * Register settings, sections and fields.
+	 * Use one option array for all settings of the plugin.
 	 * 
 	 * @since    1.0.0
 	 */
 	public function register_settings()
 	{
-		$settings = [
-			'client_id'     => [
-				'id'          => $this->plugin_name . '-option-client-id',
-				'type'        => 'string',
-				'description' => __('Application (Client) ID', $this->plugin_name),
-			],
-			'client_secret' => [
-				'id'          => $this->plugin_name . '-option-client-secret',
-				'type'        => 'string',
-				'description' => __('Client Secret', $this->plugin_name),
-			],
-			'tenant_id'     => [
-				'id'          => $this->plugin_name . '-option-tenant-id',
-				'type'        => 'string',
-				'description' => __('Tenant ID', $this->plugin_name),
-			],
-			'button_text'   => [
-				'id'          => $this->plugin_name . '-option-button-text',
-				'type'        => 'string',
-				'description' => __('Login Button Text', $this->plugin_name),
-				'default'     => __('Log in with Azure AD', $this->plugin_name),
-			],
-			'post_start'    => [
-				'id'          => $this->plugin_name . '-option-post-start',
-				'type'        => 'boolean',
-				'description' => __('Enable to start authentication using POST request', $this->plugin_name),
-				'default'     => false,
-			],
-			'post_callback' => [
-				'id'          => $this->plugin_name . '-option-post-callback',
-				'type'        => 'boolean',
-				'description' => __('Enable to request POST callback from identity provider', $this->plugin_name),
-				'default'     => false,
-			],
-			'auto_redirect' => [
-				'id'          => $this->plugin_name . '-option-auto-redirect',
-				'type'        => 'boolean',
-				'description' => __('Auto Redirect to SSO Login Page', $this->plugin_name),
-				'default'     => false,
-			],
-		];
+		register_setting(
+			$this->plugin_name,
+			$this->plugin_name,
+			array($this, 'sanitize_options')
+		);
 
-		foreach ($settings as $setting) {
-			register_setting(
-				$this->plugin_name . '-options',
-				$setting['id'],
-				[
-					'type' => $setting['type'],
-					'description' => $setting['description'],
-					'default' => $setting['default'] ?? null,
-				]
-			);
-		}
-	}
+		add_settings_section(
+			$this->plugin_name . '-section-general',
+			__('General Options', $this->plugin_name),
+			function () {
+				echo sprintf(
+					/* translators: %s: Login URL */
+					__('Configure client ID, client secret and tenant ID.
+						Get them from your Microsoft Entra ID app registration.<br>
+						Add <code>%s</code> as the redirect URL to the app registration.', $this->plugin_name),
+					esc_url(wp_login_url())
+				);
+			}, 
+			$this->plugin_name,
+		);
 
-	/**
-	 * Register settings sections.
-	 * 
-	 * @since    1.0.0
-	 */
-	public function register_sections()
-	{
-		$sections = array(
-			'general'  => [
-				'id'       => $this->plugin_name . '-section-general',
-				'title'    => __('General Options', $this->plugin_name),
-				'callback' => function () {
-					echo __('Configure client ID, client secret, tenant ID and redirect URI.
-					      Get them from your Azure AD app registration.', $this->plugin_name);
-				},
-			],
-			'login'    => [
-				'id'       => $this->plugin_name . '-section-login',
-				'title'    => __('Login Page Options', $this->plugin_name),
-				'callback' => function () {
-					echo __('Configure the login page behavior or style the login page button.', $this->plugin_name);
-				},
-			],
-			'advanced' => [
-				'id'       => $this->plugin_name . '-section-advanced',
-				'title'    => __('Advanced Options', $this->plugin_name),
-				'callback' => function () {
-					echo __('Configure advanced options for SSO here.', $this->plugin_name);
-				},
+		add_settings_section(
+			$this->plugin_name . '-section-login',
+			__('Login Page Options', $this->plugin_name),
+			function () {
+				_e('Configure the login page behavior or style the login page button.', $this->plugin_name);
+			},
+			$this->plugin_name,
+		);
+
+		add_settings_section(
+			$this->plugin_name . '-section-advanced',
+			__('Advanced Options', $this->plugin_name),
+			function () {
+				_e('Configure advanced options for SSO here.', $this->plugin_name);
+			},
+			$this->plugin_name,
+		);
+
+		add_settings_field(
+			'client_id',
+			__('Client ID', $this->plugin_name),
+			array($this, 'text_field'),
+			$this->plugin_name,
+			$this->plugin_name . '-section-general',
+			[
+				'id'        => 'client_id',
+				'label_for' => 'client_id',
 			],
 		);
 
-		foreach ($sections as $section) {
-			add_settings_section(
-				$section['id'],
-				$section['title'],
-				$section['callback'],
-				$this->plugin_name
-			);
-		}
+		add_settings_field(
+			'client_secret',
+			__('Client Secret', $this->plugin_name),
+			array($this, 'password_field'), // TODO: Encrypt content
+			$this->plugin_name,
+			$this->plugin_name . '-section-general',
+			[
+				'id'        => 'client_secret',
+				'label_for' => 'client_secret',
+			],
+		);
+
+		add_settings_field(
+			'tenant_id',
+			__('Tenant ID', $this->plugin_name),
+			array($this, 'text_field'),
+			$this->plugin_name,
+			$this->plugin_name . '-section-general',
+			[
+				'id'        => 'tenant_id',
+				'label_for' => 'tenant_id',
+			],
+		);
+
+		add_settings_field(
+			'button_text',
+			__('Login Button Text', $this->plugin_name),
+			array($this, 'text_field'),
+			$this->plugin_name,
+			$this->plugin_name . '-section-login',
+			[
+				'id'        => 'button_text',
+				'label_for' => 'button_text',
+			],
+		);
+
+		add_settings_field(
+			'use_post',
+			__('Use POST Requests', $this->plugin_name),
+			array($this, 'checkbox'),
+			$this->plugin_name,
+			$this->plugin_name . '-section-advanced',
+			[
+				'id'        => 'use_post',
+				'label_for' => 'use_post',
+			],
+		);
+
+		add_settings_field(
+			'auto_redirect',
+			__('Auto Redirect', $this->plugin_name),
+			array($this, 'checkbox'),
+			$this->plugin_name,
+			$this->plugin_name . '-section-advanced',
+			[
+				'id'        => 'auto_redirect',
+				'label_for' => 'auto_redirect',
+			],
+		);
 	}
 
 	/**
-	 * Register settings fields.
-	 *
+	 * Sanitize the options.
+	 * 
 	 * @since    1.0.0
+	 * @param    array    $input    The input options.
+	 * @return   array    The sanitized options.
 	 */
-	public function register_fields()
+	public function sanitize_options($input)
 	{
-		$fields = [
-			'client_id'     => [
-				'id'       => $this->plugin_name . '-option-client-id',
-				'title'    => __('Client ID', $this->plugin_name),
-				'callback' => array($this, 'text_field'),
-				'section'  => $this->plugin_name . '-section-general',
-				'args'     => [
-					'id'    => $this->plugin_name . '-option-client-id',
-					'class' => 'regular-text',
-				],
-			],
-			'client_secret' => [
-				'id'       => $this->plugin_name . '-option-client-secret',
-				'title'    => __('Client Secret', $this->plugin_name),
-				'callback' => array($this, 'text_field'),
-				'section'  => $this->plugin_name . '-section-general',
-				'args'     => [
-					'id'    => $this->plugin_name . '-option-client-secret',
-					'class' => 'regular-text',
-				],
-			],
-			'tenant_id'     => [
-				'id'       => $this->plugin_name . '-option-tenant-id',
-				'title'    => __('Tenant ID', $this->plugin_name),
-				'callback' => array($this, 'text_field'),
-				'section'  => $this->plugin_name . '-section-general',
-				'args'     => [
-					'id'    => $this->plugin_name . '-option-tenant-id',
-					'class' => 'regular-text',
-				],
-			],
-			'button_text'   => [
-				'id'       => $this->plugin_name . '-option-button-text',
-				'title'    => __('Login Button Text', $this->plugin_name),
-				'callback' => array($this, 'text_field'),
-				'section'  => $this->plugin_name . '-section-login',
-				'args'     => [
-					'id'    => $this->plugin_name . '-option-button-text',
-					'class' => 'regular-text',
-				],
-			],
-			// TODO: Add fields for POST request options
-			'auto_redirect' => [
-				'id'       => $this->plugin_name . '-option-auto-redirect',
-				'title'    => __('Auto Redirect to SSO Login Page', $this->plugin_name),
-				'callback' => array($this, 'checkbox'),
-				'section'  => $this->plugin_name . '-section-advanced',
-				'args'     => [
-					'id'    => $this->plugin_name . '-option-auto-redirect',
-				],
-			],
-		];
-
-		foreach ($fields as $field) {
-			add_settings_field(
-				$field['id'],
-				$field['title'],
-				$field['callback'],
-				$this->plugin_name,
-				$field['section'],
-				$field['args']
-			);
+		$sanitized_input = $this->options;
+		if (empty($input)) {
+			return $sanitized_input; // Unchanged
 		}
+
+		foreach ($input as $key => $value) {
+			// TODO: Sanitize different inputs accordingly
+			$sanitized_input[$key] = sanitize_text_field($value);
+		}
+		return $sanitized_input;
 	}
 
 	/**
@@ -316,6 +309,16 @@ class Azure_SSO_Admin
 	public function text_field($args)
 	{
 		include plugin_dir_path(__FILE__) . 'partials/azure-sso-admin-option-text-field.php';
+	}
+
+	/**
+	 * Render a password field for an option.
+	 * 
+	 * @since    1.0.0
+	 */
+	public function password_field($args)
+	{
+		include plugin_dir_path(__FILE__) . 'partials/azure-sso-admin-option-password-field.php';
 	}
 
 	/**

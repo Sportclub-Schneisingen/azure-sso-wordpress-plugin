@@ -295,9 +295,9 @@ class Azure_SSO_Authenticator
      */
     private function get_config()
     {
-        $client_id = get_option($this->plugin_name . '-option-client-id', '');
-        $client_secret = get_option($this->plugin_name . '-option-client-secret', '');
-        $tenant_id = get_option($this->plugin_name . '-option-tenant-id', '');
+        $client_id = get_option($this->plugin_name)['client_id'];
+        $client_secret = get_option($this->plugin_name)['client_secret'];
+        $tenant_id = get_option($this->plugin_name)['tenant_id'];
 
         if (empty($client_id) || empty($client_secret) || empty($tenant_id)) {
             $options_page = add_query_arg('page', $this->plugin_name, admin_url('options-general.php'));

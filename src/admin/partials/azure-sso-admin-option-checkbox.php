@@ -11,5 +11,9 @@
  */
 ?>
 
-<!-- This file should primarily consist of HTML with a little bit of PHP. -->
-<input type="checkbox" name="<?php echo $args['id']; ?>" value="1" <?php checked(1, get_option($args['id']), true); ?> />
+<input
+    type="checkbox"
+    id="<?php esc_attr_e($args['id']); ?>"
+    name="<?php esc_attr_e(sprintf('%s[%s]', $this->plugin_name, $args['id'])); ?>"
+    value="1"
+    <?php checked($this->options[$args['id']]); ?> />

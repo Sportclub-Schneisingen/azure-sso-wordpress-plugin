@@ -98,8 +98,7 @@ class Azure_SSO_Public
 		if (isset($_REQUEST['redirect_to'])) {
 			$login_url = add_query_arg('redirect_to', $_REQUEST['redirect_to'], $login_url);
 		}
-		$login_url = esc_url($login_url);
-		$button_text = esc_html(get_option($this->plugin_name . '-option-button-text', __('Log in with Azure AD', $this->plugin_name)));
+		$button_text = get_option($this->plugin_name)['button_text'];
 		include plugin_dir_path(__FILE__) . 'partials/azure-sso-public-login-form.php';
 	}
 
@@ -178,14 +177,12 @@ class Azure_SSO_Public
 		// Do not re-authenticate if the user is already logged in
 		if (is_a($user, 'WP_User')) {
 			// User is already logged in
-			write_log('===== already logged in =====');
 			return $user;
 		}
 
 		// Check if the login form was submitted
 		if (isset($_POST['wp-submit'])) {
 			// Hand back to WordPress to handle the login
-			write_log('===== form submitted =====');
 			return $user;
 		}
 
@@ -256,7 +253,6 @@ class Azure_SSO_Public
 	{
 		if (is_a($user, 'WP_User') && isset($_SESSION[$this->plugin_name . '-redirect-to'])) {
 			$redirect_to = esc_url_raw($_SESSION[$this->plugin_name . '-redirect-to']);
-			write_log('===== redirect_to: ' . $redirect_to . ' =====');
 		}
 		return $redirect_to;
 	}

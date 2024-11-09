@@ -15,8 +15,8 @@
     width: 100%;
     /* TODO: Low priority - Add configuration to styles */
     color: white;
-    background: green;
-    border-color: green;
+    background: #008ad7;
+    border-color: #008ad7;
 }
 
 #azure-sso-login-button > .icon {
