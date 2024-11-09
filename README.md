@@ -11,6 +11,18 @@ It is a collection of features of other plugins.
 2. Go to Plugins > Installed Plugins.
 3. Activate the **Azure SSO** plugin.
 
+### Internationalization
+The .pot file can be created using the WP-CLI.
+Use the following command to create the .pot file:
+```bash
+# Install WP-CLI if not already done
+# from the root directory of the repository
+wp i18n make-pot ./src ./src/languages/azure-sso.pot --headers='{"Report-Msgid-Bugs-To":"https://github.com/Sportclub-Schneisingen/azure-sso-wordpress-plugin"}' --ignore-domain
+```
+
+After the file was created, append `"X-Domain: azure-sso"` to the headers of the .pot file.
+The domain cannot be specified because the plugin uses the `plugin_name` variable as its text domain, which is not loaded during string extraction.
+
 ## Installation
 1. Download the latest release as ZIP file.
 1. Go to the WordPress admin panel.
@@ -20,7 +32,7 @@ It is a collection of features of other plugins.
 1. Activate the plugin.
 
 ## Configuration
-1. Go to the Azure portal and create a new app registration.
+1. Go to the [Azure portal](https://portal.azure.com/) and create a new app registration.
 1. Add the redirect URI to the app registration.
 1. Copy the application (client) ID.
 1. Create a new client secret and copy its value.
@@ -36,5 +48,5 @@ Contributions are welcome! Please feel free to submit a pull request.
 ## Support
 I cannot provide any support for this plugin. Use it at your own risk.
 
-In case of any bugs, please submit an issue.
+In case of any bugs or security concerns, please submit an issue.
 If you can fix the issue yourself, please submit a pull request.

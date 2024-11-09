@@ -12,6 +12,7 @@ wordpress/
 *.vi
 *~
 *.sass-cache
+*.mo
 
 # OS or Editor folders
 .DS_Store

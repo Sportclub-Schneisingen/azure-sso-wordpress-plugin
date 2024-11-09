@@ -3,22 +3,23 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Azure SSO 1.0.0\n"
-"Report-Msgid-Bugs-To: https://github.com/Sportclub-Schneisingen/azure-sso-wordpress-plugin\n"
+"Report-Msgid-Bugs-To: https://github.com/Sportclub-Schneisingen/azure-sso-"
+"wordpress-plugin\n"
+"POT-Creation-Date: 2024-11-09T21:51:02+00:00\n"
+"PO-Revision-Date: 2024-11-10 00:09+0100\n"
 "Last-Translator: Janick Lehmann <j.clehmann@hotmail.com>\n"
-"Language-Team: English\n"
+"Language-Team: Deutsch\n"
+"Language: de_DE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-11-09T21:51:02+00:00\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.11.0\n"
+"X-Generator: Poedit 3.5\n"
 "X-Domain: azure-sso\n"
 
 #. Plugin Name of the plugin
-#: azure-sso.php
-#: admin/class-azure-sso-admin.php:93
+#: azure-sso.php admin/class-azure-sso-admin.php:93
 msgid "Azure SSO"
-msgstr ""
+msgstr "Azure SSO"
 
 #. Plugin URI of the plugin
 #: azure-sso.php
@@ -29,6 +30,7 @@ msgstr ""
 #: azure-sso.php
 msgid "Allows users to log in to WordPress using Microsoft Entra ID SSO."
 msgstr ""
+"Erlaubt es Benutzern sich mit ihrem Microsoft Konto bei WordPress anzumelden."
 
 #. Author of the plugin
 #: azure-sso.php
@@ -42,28 +44,28 @@ msgstr ""
 
 #: admin/class-azure-sso-admin.php:78
 msgid "Sign in with Microsoft Entra ID"
-msgstr ""
+msgstr "Mit Microsoft Entra ID anmelden"
 
 #: admin/class-azure-sso-admin.php:92
 msgid "Azure SSO Settings"
-msgstr ""
+msgstr "Azure SSO Einstellungen"
 
 #: admin/class-azure-sso-admin.php:115
 msgid "Azure SSO is not fully configured. SSO will not work."
-msgstr ""
+msgstr "Azure SSO nicht konfiguriert. SSO wird nicht funktionieren."
 
 #: admin/class-azure-sso-admin.php:116
 #: includes/class-azure-sso-authenticator.php:312
 msgid "Configure Azure SSO"
-msgstr ""
+msgstr "Azure SSO konfigurieren"
 
 #: admin/class-azure-sso-admin.php:135
 msgid "Settings"
-msgstr ""
+msgstr "Einstellungen"
 
 #: admin/class-azure-sso-admin.php:168
 msgid "General Options"
-msgstr ""
+msgstr "Allgemeine Optionen"
 
 #. translators: %s: Login URL
 #: admin/class-azure-sso-admin.php:172
@@ -72,46 +74,50 @@ msgid ""
 "Get them from your Microsoft Entra ID app registration.<br>\n"
 "Add <code>%s</code> as the redirect URL to the app registration."
 msgstr ""
+"Anwendungs-ID (Client ID), geheime Clientschlüssel (Client Secret) und "
+"Mandanten-ID (Tenant ID) einstellen.\n"
+"Diese Werte sind in der App-Registrierung ersichtlich.<br>\n"
+"Fügen Sie <code>%s</code> als Umleitungs-URI hinzu."
 
 #: admin/class-azure-sso-admin.php:183
 msgid "Login Page Options"
-msgstr ""
+msgstr "Optionen für die Anmeldeseite"
 
 #: admin/class-azure-sso-admin.php:185
 msgid "Configure the login page behavior or style the login page button."
-msgstr ""
+msgstr "Verhalten der Loginseite und Stil des Login-Knopfes einstellen."
 
 #: admin/class-azure-sso-admin.php:192
 msgid "Advanced Options"
-msgstr ""
+msgstr "Erweiterte Optionen"
 
 #: admin/class-azure-sso-admin.php:194
 msgid "Configure advanced options for SSO here."
-msgstr ""
+msgstr "Erweiterte Optionen des Plugins hier einstellen."
 
 #: admin/class-azure-sso-admin.php:201
 msgid "Client ID"
-msgstr ""
+msgstr "Anwendungs-ID"
 
 #: admin/class-azure-sso-admin.php:213
 msgid "Client Secret"
-msgstr ""
+msgstr "Geheimer Clientschlüssel"
 
 #: admin/class-azure-sso-admin.php:225
 msgid "Tenant ID"
-msgstr ""
+msgstr "Mandanten-ID"
 
 #: admin/class-azure-sso-admin.php:237
 msgid "Login Button Text"
-msgstr ""
+msgstr "Text für Login-Knopf"
 
 #: admin/class-azure-sso-admin.php:249
 msgid "Use POST Requests"
-msgstr ""
+msgstr "POST-Anfragen verwenden"
 
 #: admin/class-azure-sso-admin.php:261
 msgid "Auto Redirect"
-msgstr ""
+msgstr "Automatisch weiterleiten"
 
 #: includes/class-azure-sso-authenticator.php:114
 #: includes/class-azure-sso-authenticator.php:125
@@ -120,40 +126,45 @@ msgstr ""
 #: includes/class-azure-sso-authenticator.php:197
 #: public/class-azure-sso-public.php:210
 msgid "An error occurred during SSO login."
-msgstr ""
+msgstr "Während dem SSO-Anmeldeversuch ist ein Fehler aufgetreten."
 
 #: includes/class-azure-sso-authenticator.php:115
 msgid "The authorization code or state is missing."
-msgstr ""
+msgstr "Autorisierungscode oder Status fehlen."
 
 #: includes/class-azure-sso-authenticator.php:126
 msgid "The nonce is missing."
-msgstr ""
+msgstr "Die Nonce fehlt."
 
 #: includes/class-azure-sso-authenticator.php:138
 msgid "The nonce is invalid."
-msgstr ""
+msgstr "Die Nonce ist ungültig."
 
 #: includes/class-azure-sso-authenticator.php:184
 msgid "The response from the server was empty."
-msgstr ""
+msgstr "Die Antwort vom Server ist leer."
 
 #: includes/class-azure-sso-authenticator.php:237
 msgid "Your account has not been registered on this site."
-msgstr ""
+msgstr "Dieses Konto wurde auf dieser Seite noch nicht registriert."
 
 #: includes/class-azure-sso-authenticator.php:238
 msgid "Login was successful, but site did not accept user."
 msgstr ""
+"Die Anmeldung war erfolgreich, aber die Seite hat den Benutzer nicht "
+"akzeptiert."
 
 #: includes/class-azure-sso-authenticator.php:306
-msgid "Azure SSO is not configured correctly. Check configuration and try again."
+msgid ""
+"Azure SSO is not configured correctly. Check configuration and try again."
 msgstr ""
+"Azure SSO ist nicht korrekt konfiguriert. Bitte überprüfen Sie die "
+"Konfiguration und versuchen Sie es erneut."
 
 #: includes/class-azure-sso-authenticator.php:307
 msgid "Azure SSO Error"
-msgstr ""
+msgstr "Azure SSO Fehler"
 
 #: public/partials/azure-sso-public-login-form.php:18
 msgid "or sign in using single-sign-on"
-msgstr ""
+msgstr "oder mit Single-Sign-On anmelden"
