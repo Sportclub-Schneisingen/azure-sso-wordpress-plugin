@@ -12,6 +12,7 @@
  */
 ?>
 
+<?php if(!$disabled): ?>
 <hr>
 <div class="azure-sso-wrap">
     <p><?php _e('or sign in using single-sign-on'); ?></p>
@@ -22,3 +23,4 @@
         <?php esc_html_e($button_text); ?>
     </a>
 </div>
+<?php endif; ?>

@@ -93,11 +93,10 @@ class Azure_SSO_Public
 	 */
 	public function show_login_form()
 	{
-		$login_url = $this->build_endpoint_url('start');
-		if (isset($_REQUEST['redirect_to'])) {
-			$login_url = add_query_arg('redirect_to', $_REQUEST['redirect_to'], $login_url);
-		}
-		$button_text = get_option($this->plugin_name)['button_text'];
+		$options = get_option($this->plugin_name);
+		$login_url = site_url('?' . $this->plugin_name);
+		$button_text = $options['button_text'];
+		$disabled = empty($options['client_id']) || empty($options['client_secret']) || empty($options['tenant_id']);
 		include plugin_dir_path(__FILE__) . 'partials/azure-sso-public-login-form.php';
 	}
 
@@ -111,19 +110,17 @@ class Azure_SSO_Public
 	public function start_sso($template)
 	{
 		global $wp_query;
-		$query_value = $wp_query->get($this->plugin_name);
 		$success = false;
 
-		if (!empty($query_value)) {
+		if (array_key_exists($this->plugin_name, $wp_query->query_vars)) {
 			$success = $this->authenticator->request_authorization_code();
+			if ($success) {
+				return $template;
+			} else {
+				exit;
+			}
 		} else {
 			return $template;
-		}
-		
-		if ($success) {
-			return $template;
-		} else {
-			exit;
 		}
 	}
 
@@ -245,36 +242,17 @@ class Azure_SSO_Public
 	 * @since    1.0.0
 	 * @param    string $redirect_to
 	 * @param    string $request
-	 * @param    WP_User $user
+	 * @param    WP_User|WP_Error $user
 	 * @return   string
 	 */
 	public function redirect($redirect_to, $request, $user)
 	{
-		if (is_a($user, 'WP_User') && isset($_SESSION[$this->plugin_name . '-redirect-to'])) {
-			$redirect_to = esc_url_raw($_SESSION[$this->plugin_name . '-redirect-to']);
+		if (is_a($user, 'WP_User') && isset($_SESSION[$this->plugin_name . '-signed-in'])) {
+			return isset($_SESSION[$this->plugin_name . '-redirect-to'])
+				? esc_url_raw($_SESSION[$this->plugin_name . '-redirect-to'])
+				: $redirect_to;
 		}
 		return $redirect_to;
-	}
-
-	/**
-	 * Build the plugin endpoint URL.
-	 * Enforce HTTPS if possible.
-	 * 
-	 * @since    1.0.0
-	 * @param    string $action
-	 * @param    bool   $enforce_https
-	 * @return   string
-	 */
-	private function build_endpoint_url($action, $enforce_https = false)
-	{
-		// TODO: Use rewrites if enabled
-		$url = site_url('?' . $this->plugin_name . '=' . urlencode($action), $enforce_https ? 'https' : null);
-		$host = parse_url($url, PHP_URL_HOST);
-		if ($action === 'callback' && $enforce_https === false && in_array($host, ['localhost', '127.0.0.1',], true)) {
-			return $this->build_endpoint_url($action, true);
-		} else {
-			return $url;
-		}
 	}
 
 	/**
