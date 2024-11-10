@@ -12,7 +12,7 @@ Organizations which use Microsoft 365 can use this plugin to allow their users t
 - [X] Automatically redirect to SSO login from the WordPress login page.
 - [X] Fallback to WordPress login.
 - [ ] Support POST requests to IdP.
-- [ ] Option for user creation on first sign in.
+- [X] Option for user creation on first sign in.
 - [ ] Option for user role/user group mappings.
 - [ ] Support PKCE.
 - [ ] ID token validation.
@@ -50,10 +50,12 @@ The domain cannot be specified because the plugin uses the `plugin_name` variabl
 
 ## Configuration
 1. Go to the [Azure portal](https://portal.azure.com/) and create a new app registration.
-1. Add the redirect URI to the app registration.
-1. Copy the application (client) ID.
+1. Configure the Web platform with the correct redirect URI.
+1. Add the groups claim to the app registration in "Token configuration" (required for role mapping).
+1. Copy the application (client) ID and the tenant ID.
 1. Create a new client secret and copy its value.
-1. Go to the plugin settings and enter the client ID and client secret.
+1. Go to the plugin settings and enter the client ID, client secret and tenant ID.
+1. Configure role mappings in plugin settings if needed.
 1. Save the settings.
 
 ## License
