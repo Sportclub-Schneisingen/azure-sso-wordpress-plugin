@@ -23,11 +23,14 @@ class Azure_SSO_Deactivator
 {
 
 	/**
-	 * Short Description. (use period)
+	 * Runs when plugin is deactivated.
 	 *
-	 * Long Description.
+	 * Unregisters the rewrite endpoint for the plugin.
 	 *
 	 * @since    1.0.0
 	 */
-	public static function deactivate() {}
+	public static function deactivate()
+	{
+		flush_rewrite_rules();
+	}
 }

@@ -23,11 +23,15 @@ class Azure_SSO_Activator
 {
 
 	/**
-	 * Short Description. (use period)
+	 * Runs when plugin is activated.
 	 *
-	 * Long Description.
+	 * Registers the rewrite endpoint for the plugin.
 	 *
 	 * @since    1.0.0
 	 */
-	public static function activate() {}
+	public static function activate()
+	{
+		add_rewrite_endpoint('azure-sso', EP_ROOT); // TODO: Get plugin name
+		flush_rewrite_rules();
+	}
 }
