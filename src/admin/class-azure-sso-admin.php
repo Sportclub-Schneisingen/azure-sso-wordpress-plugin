@@ -50,15 +50,6 @@ class Azure_SSO_Admin
 	private $options;
 
 	/**
-	 * The default options for this plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 * @var      array    $defaults    The default options for this plugin.
-	 */
-	private $defaults;
-
-	/**
 	 * Initialize the class and set its properties.
 	 *
 	 * @since    1.0.0
@@ -70,7 +61,7 @@ class Azure_SSO_Admin
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
 
-		$this->defaults = [
+		$defaults = [
 			'client_id'     => '',
 			'client_secret' => '',
 			'tenant_id'     => '',
@@ -78,6 +69,7 @@ class Azure_SSO_Admin
 			'use_post'      => false,
 			'auto_redirect' => false,
 		];
+		$this->options = wp_parse_args(get_option($this->plugin_name, []), $defaults);
 	}
 
 	/**
@@ -144,7 +136,6 @@ class Azure_SSO_Admin
 	 */
 	public function options_page()
 	{
-		$this->options = wp_parse_args(get_option($this->plugin_name, []), $this->defaults);
 		include plugin_dir_path(__FILE__) . 'partials/azure-sso-admin-display.php';
 	}
 
