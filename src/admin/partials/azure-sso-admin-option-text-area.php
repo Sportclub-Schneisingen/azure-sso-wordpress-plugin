@@ -11,7 +11,8 @@
 ?>
 
 <textarea
-    id="<?php esc_attr_e($args['id']); ?>"
-    name="<?php esc_attr_e(sprintf('%s[%s]', $this->plugin_name, $args['id'])); ?>">
-    <?php esc_attr_e($this->options[$args['id']]); ?>
+    id="<?php echo $id; ?>"
+    name="<?php echo $name; ?>"
+    rows="6">
+    <?php echo $value; ?>
 </textarea>

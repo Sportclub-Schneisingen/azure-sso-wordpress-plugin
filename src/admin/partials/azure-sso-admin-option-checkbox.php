@@ -12,7 +12,7 @@
 
 <input
     type="checkbox"
-    id="<?php esc_attr_e($args['id']); ?>"
-    name="<?php esc_attr_e(sprintf('%s[%s]', $this->plugin_name, $args['id'])); ?>"
+    id="<?php echo $id; ?>"
+    name="<?php echo $name; ?>"
     value="1"
-    <?php checked($this->options[$args['id']]); ?> />
+    <?php checked($options[$args['label_for']]); ?> />

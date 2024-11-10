@@ -41,15 +41,6 @@ class Azure_SSO_Admin
 	private $version;
 
 	/**
-	 * The options for this plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 * @var      array    $options    The options for this plugin.
-	 */
-	private $options;
-
-	/**
 	 * Initialize the class and set its properties.
 	 *
 	 * @since    1.0.0
@@ -61,15 +52,18 @@ class Azure_SSO_Admin
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
 
-		$defaults = [
-			'client_id'     => '',
-			'client_secret' => '',
-			'tenant_id'     => '',
-			'button_text'   => __('Sign in with Microsoft Entra ID', $this->plugin_name),
-			'use_post'      => false,
-			'auto_redirect' => false,
-		];
-		$this->options = wp_parse_args(get_option($this->plugin_name, []), $defaults);
+		if (get_option($this->plugin_name) === false) {
+			$defaults = [
+				'client_id'     => '',
+				'client_secret' => '',
+				'tenant_id'     => '',
+				'button_text'   => __('Sign in with Microsoft Entra ID', $this->plugin_name),
+				'auto_redirect' => false,
+				'create_user'   => false,
+				'use_post'      => false,
+			];
+			add_option($this->plugin_name, $defaults);
+		}
 	}
 
 	/**
@@ -95,9 +89,10 @@ class Azure_SSO_Admin
 	 */
 	public function display_notices()
 	{
-		$client_id = isset($this->options['client_id']) ? $this->options['client_id'] : '';
-		$client_secret = isset($this->options['client_secret']) ? $this->options['client_secret'] : '';
-		$tenant_id = isset($this->options['tenant_id']) ? $this->options['tenant_id'] : '';
+		$options = get_option($this->plugin_name);
+		$client_id = $options['client_id'];
+		$client_secret = $options['client_secret'];
+		$tenant_id = $options['tenant_id'];
 
 		if (empty($client_id) || empty($client_secret) || empty($tenant_id)) {
 			add_action('admin_notices', function() {
@@ -193,7 +188,6 @@ class Azure_SSO_Admin
 			$this->plugin_name,
 			$this->plugin_name . '-section-general',
 			[
-				'id'        => 'client_id',
 				'label_for' => 'client_id',
 			],
 		);
@@ -205,7 +199,6 @@ class Azure_SSO_Admin
 			$this->plugin_name,
 			$this->plugin_name . '-section-general',
 			[
-				'id'        => 'client_secret',
 				'label_for' => 'client_secret',
 			],
 		);
@@ -217,7 +210,6 @@ class Azure_SSO_Admin
 			$this->plugin_name,
 			$this->plugin_name . '-section-general',
 			[
-				'id'        => 'tenant_id',
 				'label_for' => 'tenant_id',
 			],
 		);
@@ -229,8 +221,29 @@ class Azure_SSO_Admin
 			$this->plugin_name,
 			$this->plugin_name . '-section-login',
 			[
-				'id'        => 'button_text',
 				'label_for' => 'button_text',
+			],
+		);
+
+		add_settings_field(
+			'auto_redirect',
+			__('Auto Redirect', $this->plugin_name),
+			array($this, 'checkbox'),
+			$this->plugin_name,
+			$this->plugin_name . '-section-login',
+			[
+				'label_for' => 'auto_redirect',
+			],
+		);
+
+		add_settings_field(
+			'create_user',
+			__('Create User', $this->plugin_name),
+			array($this, 'checkbox'),
+			$this->plugin_name,
+			$this->plugin_name . '-section-advanced',
+			[
+				'label_for' => 'create_user',
 			],
 		);
 
@@ -241,20 +254,7 @@ class Azure_SSO_Admin
 			$this->plugin_name,
 			$this->plugin_name . '-section-advanced',
 			[
-				'id'        => 'use_post',
 				'label_for' => 'use_post',
-			],
-		);
-
-		add_settings_field(
-			'auto_redirect',
-			__('Auto Redirect', $this->plugin_name),
-			array($this, 'checkbox'),
-			$this->plugin_name,
-			$this->plugin_name . '-section-advanced',
-			[
-				'id'        => 'auto_redirect',
-				'label_for' => 'auto_redirect',
 			],
 		);
 	}
@@ -268,16 +268,15 @@ class Azure_SSO_Admin
 	 */
 	public function sanitize_options($input)
 	{
-		$sanitized_input = $this->options;
-		if (empty($input)) {
-			return $sanitized_input; // Unchanged
-		}
-
+		$output = [];
 		foreach ($input as $key => $value) {
+			if (!isset($input[$key])) {
+				continue;
+			}
 			// TODO: Sanitize different inputs accordingly
-			$sanitized_input[$key] = sanitize_text_field($value);
+			$output[$key] = sanitize_text_field($value);
 		}
-		return $sanitized_input;
+		return $output;
 	}
 
 	/**
@@ -298,6 +297,10 @@ class Azure_SSO_Admin
 	 */
 	public function text_field($args)
 	{
+		$options = get_option($this->plugin_name);
+		$id = esc_attr($args['label_for']);
+		$name = sprintf('%s[%s]', esc_attr($this->plugin_name), $args['label_for']);
+		$value = $options[$args['label_for']];
 		include plugin_dir_path(__FILE__) . 'partials/azure-sso-admin-option-text-field.php';
 	}
 
@@ -308,6 +311,10 @@ class Azure_SSO_Admin
 	 */
 	public function password_field($args)
 	{
+		$options = get_option($this->plugin_name);
+		$id = esc_attr($args['label_for']);
+		$name = sprintf('%s[%s]', esc_attr($this->plugin_name), $args['label_for']);
+		$value = $options[$args['label_for']];
 		include plugin_dir_path(__FILE__) . 'partials/azure-sso-admin-option-password-field.php';
 	}
 
@@ -318,6 +325,10 @@ class Azure_SSO_Admin
 	 */
 	public function text_area($args)
 	{
+		$options = get_option($this->plugin_name);
+		$id = esc_attr($args['label_for']);
+		$name = sprintf('%s[%s]', esc_attr($this->plugin_name), $args['label_for']);
+		$value = $options[$args['label_for']];
 		include plugin_dir_path(__FILE__) . 'partials/azure-sso-admin-option-text-area.php';
 	}
 
@@ -328,6 +339,9 @@ class Azure_SSO_Admin
 	 */
 	public function checkbox($args)
 	{
+		$options = get_option($this->plugin_name);
+		$id = esc_attr($args['label_for']);
+		$name = sprintf('%s[%s]', esc_attr($this->plugin_name), $args['label_for']);
 		include plugin_dir_path(__FILE__) . 'partials/azure-sso-admin-option-checkbox.php';
 	}
 
