@@ -93,7 +93,7 @@ class Azure_SSO_Authenticator
 			// TODO: Add support for PKCE
 		];
         $url = $this::BASE_URL . urlencode($config['tenant_id']) . '/oauth2/v2.0/authorize';
-        wp_redirect(add_query_arg($query_params, $url));
+        wp_redirect(esc_url_raw(add_query_arg($query_params, $url)));
         return true;
     }
 
@@ -227,8 +227,32 @@ class Azure_SSO_Authenticator
         list($header, $payload, $signature) = explode('.', $id_token);
         $payload = json_decode(base64_decode($payload), true);
 
+        // TODO: For debugging purposes
+        write_log($payload);
+
         $user = get_user_by('email', $payload['email']);
-        if ($user === false) {
+        if (is_a($user, 'WP_User')) {
+            return $user;
+        }
+
+        $option = get_option($this->plugin_name);
+        if (isset($option['create_user']) && $option['create_user']) {
+            $user_id = wp_insert_user([
+                'user_email'   => $payload['email'],
+                'user_login'   => substr($payload['email'], 0, strpos($payload['email'], '@')),
+                'user_pass'    => wp_generate_password(),
+                'display_name' => $payload['name'],
+                'meta_input'   => [
+                    'azure_sso_provisioned' => true,
+                ],
+            ]);
+
+            if (is_wp_error($user_id)) {
+                // Error while creating user
+                return $user_id;
+            }
+            return get_user_by('id', $user_id);
+        } else {
             return new WP_Error(
                 'user_not_found',
                 sprintf(
@@ -237,10 +261,7 @@ class Azure_SSO_Authenticator
                     esc_html__('Login was successful, but site did not accept user.', $this->plugin_name),
                 )
             );
-            // TODO: Create user if not exists
         }
-
-        return $user;
     }
 
     /**
