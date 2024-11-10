@@ -3,7 +3,6 @@
 /**
  * Provides the markup for a password field.
  *
- * @link       http://example.com
  * @since      1.0.0
  *
  * @package    Azure_SSO

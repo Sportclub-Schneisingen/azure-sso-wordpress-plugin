@@ -22,7 +22,7 @@ msgstr ""
 
 #. Plugin URI of the plugin
 #: azure-sso.php
-msgid "http://example.com/azure-sso/"
+msgid "https://github.com/Sportclub-Schneisingen/azure-sso-wordpress-plugin/"
 msgstr ""
 
 #. Description of the plugin

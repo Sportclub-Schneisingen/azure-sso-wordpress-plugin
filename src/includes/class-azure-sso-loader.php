@@ -3,7 +3,6 @@
 /**
  * Register all actions and filters for the plugin
  *
- * @link       http://example.com
  * @since      1.0.0
  *
  * @package    Azure_SSO
@@ -19,7 +18,7 @@
  *
  * @package    Azure_SSO
  * @subpackage Azure_SSO/includes
- * @author     Your Name <email@example.com>
+ * @author     Janick Lehmann <j.clehmann@hotmail.com>
  */
 class Azure_SSO_Loader
 {

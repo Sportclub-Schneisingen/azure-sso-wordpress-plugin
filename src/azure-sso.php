@@ -8,13 +8,12 @@
  * registers the activation and deactivation functions, and defines a function
  * that starts the plugin.
  *
- * @link              http://example.com
  * @since             1.0.0
  * @package           Azure_SSO
  *
  * @wordpress-plugin
  * Plugin Name:       Azure SSO
- * Plugin URI:        http://example.com/azure-sso/
+ * Plugin URI:        https://github.com/Sportclub-Schneisingen/azure-sso-wordpress-plugin/
  * Description:       Allows users to log in to WordPress using Microsoft Entra ID SSO.
  * Version:           1.0.0
  * Author:            Janick Lehmann
