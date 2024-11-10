@@ -1,12 +1,12 @@
 === Azure SSO ===
-Contributors: janick.lehmann
+Contributors: Janick Lehmann
 Donate link: 
 Tags: microsoft, azure, entra id, sso
 Requires at least: 3.0.1
 Tested up to: 6.6.2
 Stable tag: 1.0.0
-License: MIT
-License URI: https://mit-license.org/
+License: GPL-3.0
+License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
 
 This plugin allows you to sign into the WordPress admin portal using Microsoft Entra ID SSO.
 

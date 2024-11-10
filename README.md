@@ -3,7 +3,24 @@ Azure SSO is a small and simple WordPress plugin that allows you to sign in to y
 
 ## Introduction
 This plugin allows users to sign in to WordPress using Microsoft Entra ID as identity provider.
-It is a collection of features of other plugins.
+Organizations which use Microsoft 365 can use this plugin to allow their users to sign in to WordPress using their Microsoft Entra ID account.
+
+**This project is not affiliated nor endorsed by Microsoft.**
+
+### Features
+- [X] Sign in existing WordPress users when email address matches.
+- [X] Automatically redirect to SSO login from the WordPress login page.
+- [X] Fallback to WordPress login.
+- [ ] Support POST requests to IdP.
+- [ ] Option for user creation on first sign in.
+- [ ] Option for user role/user group mappings.
+- [ ] Support PKCE.
+- [ ] ID token validation.
+- [ ] Configure plugin using environment variables.
+- [ ] Automatic release pipeline for GitHub releases.
+
+### Inspired By
+It was inspired by [AAD SSO Wordpress](https://github.com/psignoret/aad-sso-wordpress) and [WP SSO for Azure AD](https://gitlab.com/qlcvea/wp-sso-for-azure-ad).
 
 ## Getting Started
 1. Run `docker compose up -d` to start the WordPress containers.
@@ -40,13 +57,16 @@ The domain cannot be specified because the plugin uses the `plugin_name` variabl
 1. Save the settings.
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU GPLv3 - see the [LICENSE](LICENSE) file for details.
+
+This project is based on the [WordPress Plugin Boilerplate](https://github.com/DevinVinson/WordPress-Plugin-Boilerplate),
+which is licensed under the GNU GPLv2 or later.
 
 ## Contributing
 Contributions are welcome! Please feel free to submit a pull request.
 
 ## Support
-I cannot provide any support for this plugin. Use it at your own risk.
+*This project is a work in progress. The plugin is provided as-is, without any guarantees.*
 
 In case of any bugs or security concerns, please submit an issue.
 If you can fix the issue yourself, please submit a pull request.

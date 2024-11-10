@@ -18,8 +18,8 @@
  * Version:           1.0.0
  * Author:            Janick Lehmann
  * Author URI:        https://janicklehmann.ch/
- * License:           MIT
- * License URI:       https://mit-license.org/
+ * License:           GPL-3.0
+ * License URI:       https://www.gnu.org/licenses/gpl-3.0.en.html
  * Text Domain:       azure-sso
  * Domain Path:       /languages
  */

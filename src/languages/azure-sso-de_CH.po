@@ -1,5 +1,5 @@
 # Copyright (C) 2024 Janick Lehmann
-# This file is distributed under the MIT.
+# This file is distributed under the GPL-3.0.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
