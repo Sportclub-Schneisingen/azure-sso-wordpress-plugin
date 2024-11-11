@@ -101,7 +101,7 @@ class Azure_SSO_Authenticator
      * Handle authorization code response.
      * 
      * @since    1.0.0
-     * @return   WP_Error|string    The authorization code if successful, WP_Error otherwise.
+     * @return   string|WP_Error    The authorization code if successful, WP_Error otherwise.
      */
     public function handle_authorization_code_response()
     {
@@ -147,8 +147,8 @@ class Azure_SSO_Authenticator
      * Request the ID token from Microsoft Entra ID.
      * 
      * @since    1.0.0
-     * @param    string    $code    The authorization code.
-     * @return   array|bool    Array with ID token and access token if successful, false otherwise.
+     * @param    string            $code    The authorization code.
+     * @return   array|WP_Error             The ID token and access token if successful, WP_Error otherwise.
      */
     public function request_id_token($code)
     {
@@ -218,9 +218,9 @@ class Azure_SSO_Authenticator
      * Sign in the user using the ID token and access token.
      * 
      * @since    1.0.0
-     * @param    string    $id_token       The ID token.
-     * @param    string    $access_token   The access token.
-     * @return   WP_Error|WP_User    The signed in user if successful, a WP_Error otherwise.
+     * @param    string              $id_token        The ID token.
+     * @param    string              $access_token    The access token.
+     * @return   WP_User|WP_Error                     The signed in user if successful, a WP_Error otherwise.
      */
     public function sign_in($id_token, $access_token)
     {
@@ -269,11 +269,12 @@ class Azure_SSO_Authenticator
      * Validate the ID token received from Microsoft Entra ID.
      * 
      * @since    1.0.0
-     * @param    string    $header     The header of the ID token.
-     * @param    string    $signature  The signature of the ID token.
-     * @param    string    $client_id  The client ID.
-     * @param    string    $tenant_id  The tenant ID.
-     * @return   bool    True if the ID token is valid, false otherwise.
+     * @access   private
+     * @param    string    $header       The header of the ID token.
+     * @param    string    $signature    The signature of the ID token.
+     * @param    string    $client_id    The client ID.
+     * @param    string    $tenant_id    The tenant ID.
+     * @return   bool                    Boolean indicating if the token is valid.
      */
     private function validate_id_token($header, $signature, $client_id, $tenant_id)
     {
@@ -311,7 +312,7 @@ class Azure_SSO_Authenticator
      * Get configuration values, if the plugin is configured.
      * 
      * @since    1.0.0
-     * @return   bool|array    False if not configured, array of configuration values if configured.
+     * @return   array|bool    The configuration values if set, false otherwise.
      */
     private function get_config()
     {

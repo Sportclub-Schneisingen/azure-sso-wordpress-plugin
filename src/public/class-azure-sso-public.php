@@ -65,9 +65,10 @@ class Azure_SSO_Public
 	}
 
 	/**
-	 * Load the required dependencies for this plugin.
+	 * Load the required dependencies for this class.
 	 * 
 	 * @since    1.0.0
+	 * @access   private
 	 */
 	private function load_dependencies()
 	{
@@ -104,8 +105,8 @@ class Azure_SSO_Public
 	 * Receive requests on endpoint.
 	 * 
 	 * @since    1.0.0
-	 * @param    string $template
-	 * @return   string
+	 * @param    string    $template    The template to be used.
+	 * @return   string                 The template to be used.
 	 */
 	public function start_sso($template)
 	{
@@ -163,10 +164,10 @@ class Azure_SSO_Public
 	 * Intercept requests to login page or login process.
 	 * 
 	 * @since    1.0.0
-	 * @param    WP_User|WP_Error $user     WP_User if the user is authenticated. WP_Error or null otherwise.
-	 * @param    string           $username Username or email address.
-	 * @param    string           $password User password
-	 * @return   WP_User|WP_Error
+	 * @param    null|WP_User|WP_Error    $user        A WP_User object if the user is authenticated. WP_Error or null otherwise.
+	 * @param    string                   $username    Username or email address.
+	 * @param    string                   $password    User password
+	 * @return   null|WP_User|WP_Error                 A WP_User object if the user is authenticated. WP_Error or null otherwise.
 	 */
 	public function authenticate($user, $username, $password)
 	{
@@ -240,10 +241,10 @@ class Azure_SSO_Public
 	 * Redirect the user after login.
 	 * 
 	 * @since    1.0.0
-	 * @param    string $redirect_to
-	 * @param    string $request
-	 * @param    WP_User|WP_Error $user
-	 * @return   string
+	 * @param    string              $redirect_to    The redirect destination URL.
+	 * @param    string              $request        The requested redirect destination URL.
+	 * @param    WP_User|WP_Error    $user           WP_User object if login was successful. WP_Error object otherwise.
+	 * @return   string                              The redirect destination URL.
 	 */
 	public function redirect($redirect_to, $request, $user)
 	{
@@ -263,16 +264,5 @@ class Azure_SSO_Public
 	public function enqueue_styles()
 	{
 		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/azure-sso-public.css', array(), $this->version, 'all');
-	}
-
-	/**
-	 * Register the JavaScript for the public-facing side of the site.
-	 *
-	 * @since    1.0.0
-	 */
-	public function enqueue_scripts()
-	{
-		// TODO: Remove if not required.
-		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/azure-sso-public.js', array('jquery'), $this->version, false);
 	}
 }

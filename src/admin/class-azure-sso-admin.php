@@ -112,7 +112,7 @@ class Azure_SSO_Admin
 	 * 
 	 * @since    1.0.0
 	 * @param    array    $links    The existing links array.
-	 * @return   array    The modified links array.
+	 * @return   array              The modified links array.
 	 */
 	public function link_settings($links) {
 		$settings_link = sprintf(
@@ -264,7 +264,7 @@ class Azure_SSO_Admin
 	 * 
 	 * @since    1.0.0
 	 * @param    array    $input    The input options.
-	 * @return   array    The sanitized options.
+	 * @return   array              The sanitized options.
 	 */
 	public function sanitize_options($input)
 	{
@@ -283,7 +283,7 @@ class Azure_SSO_Admin
 	 * Get the options page URL.
 	 * 
 	 * @since    1.0.0
-	 * @return   string
+	 * @return   string    The options page URL.
 	 */
 	private function options_page_url()
 	{
@@ -343,27 +343,5 @@ class Azure_SSO_Admin
 		$id = esc_attr($args['label_for']);
 		$name = sprintf('%s[%s]', esc_attr($this->plugin_name), $args['label_for']);
 		include plugin_dir_path(__FILE__) . 'partials/azure-sso-admin-option-checkbox.php';
-	}
-
-	/**
-	 * Register the stylesheets for the admin area.
-	 *
-	 * @since    1.0.0
-	 */
-	public function enqueue_styles()
-	{
-		// TODO: Remove if not required
-		wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . 'css/azure-sso-admin.css', array(), $this->version, 'all');
-	}
-
-	/**
-	 * Register the JavaScript for the admin area.
-	 *
-	 * @since    1.0.0
-	 */
-	public function enqueue_scripts()
-	{
-		// TODO: Remove if not required
-		wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . 'js/azure-sso-admin.js', array('jquery'), $this->version, false);
 	}
 }
